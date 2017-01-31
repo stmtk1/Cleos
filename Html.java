@@ -20,10 +20,12 @@ class Html{
         this.input = input;
         getTags();
     }
-
+    
     public Html(DefaultStyledDocument doc){
         now = 0;
         this.doc = doc;
+        normal = new SimpleAttributeSet();
+        StyleConstants.setForeground(normal, new Color(255, 0, 0));
         tags = new LinkedList<String>();
         try{
             input = doc.getText(0, doc.getLength() - 1);
@@ -41,73 +43,37 @@ class Html{
         if(doctype.find()) doc.setCharacterAttributes(doctype.start(), doctype.group().length(), attr, false);
     }
     
-    /*
-    private void getTags(){
-        // Matcher tag = Pattern.compile("</?\\p{Alpha}\\p{Alnum}*>").matcher(input);
-        Matcher tag = Pattern.compile("</?\\p{Alpha}\\p{Alnum}*>").matcher(input);
-        
-        MutableAttributeSet attr = new SimpleAttributeSet();
-        StyleConstants.setForeground(attr, new Color(255, 0, 0));
-        while(tag.find()){
-            int start = tag.start();
-            String matched = tag.group();
-            // System.out.println(matched);
-            getName(matched);
-            doc.setCharacterAttributes(start + now, matched.length(), attr, false);
-            now += (start + matched.length());
-            input = input.substring(tag.end());
-            tag = Pattern.compile("</?\\p{Alpha}\\p{Alnum}*>").matcher(input);
-        }
-        if(tags.size() > 0) System.err.println("There is no end tag");
-    }
-    */
-    
     private void getTags(){
         Pattern s_pat = Pattern.compile("</?(\\p{Alpha}\\p{Alnum}*)");
         Matcher start = s_pat.matcher(input);
         Pattern e_pat = Pattern.compile("^>");
         int last_end = 0;
+        String matched;
+        int length;
         while(start.find()){
-            if(start.group().startsWith("</")){
-                if(start.group().equals(tags.pop())) System.err.println("hello world");
+            matched = start.group();
+            if(matched.startsWith("</")){
+                if(matched.equals(tags.pop())) System.err.println("hello world");
             }else{
                 tags.push(start.group(1));
             }
             input = input.substring(start.end());
-            System.out.println(last_end = trimEnd(start.start(), last_end + start.end()));
+            length = matched.length();
+            length += trimEnd();
+            doc.setCharacterAttributes(last_end + start.start(), length, normal, false);
+            last_end += start.start() + length;
             start = s_pat.matcher(input);
-        }
-    }
-
-    private int trimEnd(int start, int offset){
-        Matcher end = Pattern.compile("^>").matcher(input);
-        if(end.find()) input = input.substring(end.end());
-        return offset + end.end();
+       }
     }
     
-    /*
-    private void getName(String tag){
-        Matcher matcher = Pattern.compile("\\p{Alpha}\\p{Alnum}*").matcher(tag);
-        String matched;
-        try{
-        if(matcher.find()){
-            if(tag.startsWith("</")){
-                matched = matcher.group();
-                String poped = tags.pop();
-                if(poped.equals(matched)){
-                    System.out.println(matcher.group());
-                    System.out.println(tag);
-                }else{
-                    // System.err.println("end tag " + poped + " expected");
-                    System.out.println("a:" + tag);
-                }
-            }else{
-                tags.push(matcher.group());
-            }
-        }
-        }catch(NoSuchElementException e){
-            System.out.println(tag);
+    private int trimEnd(){
+        Matcher end = Pattern.compile("^>").matcher(input);
+        if(end.find()){
+            input = input.substring(end.end());
+            return end.group().length();
+        }else{
+            System.err.println("expected end");
+            return 0;
         }
     }
-    */
 }
