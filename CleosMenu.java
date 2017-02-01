@@ -13,8 +13,11 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class CleosMenuBar extends JMenuBar{
+    public String extention;
     public CleosMenuBar(CleosFrame frame, Container container){
         addFileMenu(frame, container);
     }
@@ -32,6 +35,15 @@ class FileMenu extends JMenu implements ActionListener{
     Container container;
     boolean click_yes;
     
+    private String getExtention(){
+        Matcher extention = Pattern.compile("\\.(\\p{Alnum}+)").matcher(file.getName());
+        if(extention.find()){
+            return extention.group(1);
+        }else{
+            return "";
+        }
+    }
+
     public FileMenu(CleosFrame frame, Container container){
         super("ファイル");
         this.frame = frame;
@@ -138,17 +150,21 @@ class FileMenu extends JMenu implements ActionListener{
     	if(closeDialog()){
     		if(file == null && !chooseFile(true)) return;
             file_write(frame.readEditor());
+            frame.updateExtention(getExtention());
     		System.exit(0);
     	}
     }
     
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == open){
-            if(chooseFile(false)) frame.rewriteEditor(file_read());
+            if(chooseFile(false)){
+                frame.rewriteEditor(file_read());
+                frame.updateExtention(getExtention());
+            }
         }else if(e.getSource() == save){
                 if(file == null && !chooseFile(true)) return;
                 file_write(frame.readEditor());
-            
+                frame.updateExtention(getExtention());
         }else if(e.getSource() == named_save){
             if(chooseFile(true)){
                 file_write(frame.readEditor());

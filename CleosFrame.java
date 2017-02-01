@@ -49,8 +49,8 @@ class CleosFrame extends JFrame{
     public CleosFrame(Container container){
         this.container = container;
         setting();
-        addMenuBar();
         addEditor();
+        addMenuBar();
         setVisible(true);
     }
     
@@ -68,6 +68,7 @@ class CleosFrame extends JFrame{
     
     void addMenuBar(){
         CleosMenuBar bar = new CleosMenuBar(this, container);
+        bar.extention = editor.extention;
         setJMenuBar(bar);
     }
     
@@ -77,5 +78,11 @@ class CleosFrame extends JFrame{
 
     public String readEditor(){
         return editor.readDocument();
+    }
+
+    public void updateExtention(String ext){
+        editor.extention = ext;
+        editor.setColor();
+        System.out.println(ext);
     }
 }

@@ -6,6 +6,7 @@ import javax.swing.text.BadLocationException;
 class CleosEditor extends JTextPane{
     DefaultStyledDocument doc;
     StyleContext sc;
+    public String extention;
     
     public CleosEditor(){
        setting(); 
@@ -23,14 +24,15 @@ class CleosEditor extends JTextPane{
     }
 
     public void setColor(){
-       Html html = new Html(doc);
+        if(extention.equals("html")){
+            Html html = new Html(doc);
+        }
     }
     
     public void writeDocument(String input){
         try{
             clearDocument();
             doc.insertString(0, input, sc.getStyle(StyleContext.DEFAULT_STYLE));
-            setColor();
         }catch(BadLocationException e){
             e.printStackTrace();
         }
