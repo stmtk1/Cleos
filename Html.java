@@ -46,26 +46,31 @@ class Html{
     private void getTags(){
         Pattern s_pat = Pattern.compile("</?(\\p{Alpha}\\p{Alnum}*)");
         Matcher start = s_pat.matcher(input);
-        Pattern e_pat = Pattern.compile("^>");
-        int last_end = 0;
+        int last_end = 0, length;
         String matched;
-        int length;
+        boolean parsed;
         while(start.find()){
             matched = start.group();
-            if(matched.startsWith("</")){
-                if(matched.equals(tags.pop())) System.err.println("hello world");
-            }else{
-                tags.push(start.group(1));
-            }
+            parsed = handleStack(matched, start.group(1));
             input = input.substring(start.end());
             length = matched.length();
+            length += trimAttr();
             length += trimEnd();
             doc.setCharacterAttributes(last_end + start.start(), length, normal, false);
             last_end += start.start() + length;
             start = s_pat.matcher(input);
        }
     }
-    
+
+    private boolean handleStack(String match, String stack){
+            if(match.startsWith("</")){
+                if(stack.equals(tags.pop())) return false;
+            }else{
+                tags.push(stack);
+            }
+            return true;
+    }
+
     private int trimEnd(){
         Matcher end = Pattern.compile("^>").matcher(input);
         if(end.find()){
@@ -75,5 +80,17 @@ class Html{
             System.err.println("expected end");
             return 0;
         }
+    }
+
+    private int trimAttr(){
+        Pattern pattern = Pattern.compile("^\\p{Space}+\\p{Alpha}+=\\\".*\\\"");
+        Matcher attr = pattern.matcher(input);
+        int length = 0;
+        while(attr.find()){
+            length += attr.group().length();
+            input = input.substring(attr.end());
+            attr = pattern.matcher(input);
+        }
+        return length;
     }
 }
