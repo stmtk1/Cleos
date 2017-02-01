@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class CleosMenuBar extends JMenuBar{
+    private static final long serialVersionUID = 101L;
     public String extention;
     public CleosMenuBar(CleosFrame frame, Container container){
         addFileMenu(frame, container);
@@ -29,6 +30,7 @@ class CleosMenuBar extends JMenuBar{
 }
 
 class FileMenu extends JMenu implements ActionListener{
+    private static final long serialVersionUID = 102L;
     JMenuItem open, save, named_save, new_window, close_window, save_close_window;
     File file;
     CleosFrame frame;
@@ -128,9 +130,8 @@ class FileMenu extends JMenu implements ActionListener{
             br.close();
         }catch(IOException e){
             e.printStackTrace();
-        }finally{
-            return sb.toString();
         }
+        return sb.toString();
     }
     
     boolean closeDialog(){
