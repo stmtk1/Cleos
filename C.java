@@ -21,13 +21,20 @@ class C{
         StyleConstants.setForeground(normal, new Color(255, 0, 0));
         try{
             input = doc.getText(0, doc.getLength() - 1);
-            System.out.println(input);
+            trimInclude();
         }catch(BadLocationException e){
             e.printStackTrace();
         }
     }
     
-    void lexer(){
-        Matcher matcher = Pattern.compile("^#include\\p{Space}*").matcher(input);
+    void trimInclude(){
+        Matcher matcher = Pattern.compile("^\\p{Space}*#include\\p{Space}*[<\\\"]\\p{Alnum}+\\.h[>\\\"]").matcher(input);
+        input = input.trim();
+        while(matcher.find()){
+            System.out.println(matcher.group());
+            input = input.substring(matcher.end());
+            input = input.trim();
+            matcher = Pattern.compile("^#include\\p{Space}*[<\\\"]\\p{Alnum}+\\.h[>\\\"]").matcher(input);
+        }
     }
 }
