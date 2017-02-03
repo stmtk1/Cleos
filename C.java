@@ -13,12 +13,14 @@ class C{
     String input;
     LinkedList<String> tags;
     DefaultStyledDocument doc;
-    MutableAttributeSet normal, error;
+    MutableAttributeSet include;
+    int last_end;
     
     public C(DefaultStyledDocument doc){
+        last_end = 0;
         this.doc = doc;
-        normal = new SimpleAttributeSet();
-        StyleConstants.setForeground(normal, new Color(255, 0, 0));
+        include = new SimpleAttributeSet();
+        StyleConstants.setForeground(include, new Color(255, 0, 0));
         try{
             input = doc.getText(0, doc.getLength() - 1);
             trimInclude();
@@ -28,13 +30,18 @@ class C{
     }
     
     void trimInclude(){
-        Matcher matcher = Pattern.compile("^\\p{Space}*#include\\p{Space}*[<\\\"]\\p{Alnum}+\\.h[>\\\"]").matcher(input);
-        input = input.trim();
+        Pattern pattern = Pattern.compile("^\\s*#include\\p{Space}*[<\\\"]\\p{Alnum}+\\.h[>\\\"]");
+        Matcher matcher = pattern.matcher(input);
         while(matcher.find()){
-            System.out.println(matcher.group());
+            doc.setCharacterAttributes(last_end + matcher.start(), matcher.group().length(), include, false);
             input = input.substring(matcher.end());
-            input = input.trim();
-            matcher = Pattern.compile("^#include\\p{Space}*[<\\\"]\\p{Alnum}+\\.h[>\\\"]").matcher(input);
+            last_end += matcher.end();
+            matcher = pattern.matcher(input);
         }
+    }
+    
+    void trimDefine(){
+        Pattern pattern = Pattern.compile("^\\s*#define\\p{Space}+[\\p{Upper}\\p{Digit}]+\\p{Space}+\\p{Digit}+(\\.\\p{Digit}+)?");
+        Matcher matcher = pattern.matcher(input);
     }
 }
